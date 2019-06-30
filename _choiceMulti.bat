@@ -1,27 +1,34 @@
+:: ------------------------------------------------------------------------
+
+:: Sub-script: _choiceMulti.bat
+:: Version: 1.1
+:: Creation Date: 2/11/2009
+:: Last Modified: 20/01/2010
+:: Author: wandersick 
+:: Email: wandersick@gmail.com
+:: Web: https://wandersick.blogspot.com
+:: Github Repo: https://github.com/wandersick/ws-choice
+:: Supported OS: Windows 2000 or later
+
+:: Description: Automatically fall back to set /p for systems without choice.exe
+::              Differentiate choice.exe from Win 9x and 2003/Vista/7
+::              Set /p also returns errorlevels
+::              Definable number of choices; for YN choices, use ChoiceYN
+::              v1.1 adds support of sed and tr to filter inputs
+
+:: For a list of supported parameters, refer to paramter /?
+
+:: ------------------------------------------------------------------------
+
 @echo off
 setlocal
-:: ****************************************************************
-:: Sub: ChoiceMulti
-:: Version: 1.0
-:: Creation Date: 2/11/2009
-:: Last Modified: 2/11/2009
-:: Author: wanderSick@C7PE 
-:: Email: wanderSick@gmail.com
-:: Web: wanderSick.blogspot.com
-:: Supported OS: 2K/XP/Vista/7
-:: Description: Properly fall back to set /p for systems without choice.exe
-::              Differentiate choice.exe from Win 9x and 2003/Vista/7
-::              Set /p also returns errorlevels.
-::              Defineable number of choices; for YN choices, use ChoiceYN
-:: Usage: See /? or /h
-:: ****************************************************************
 
 if "%~1"=="/?" (goto help) else if /i "%~1"=="" (goto help) else (goto _choiceMulti)
 
 :help
 
 echo.
-echo :: ChoiceMulti 1.0 by wanderSick (wanderSick.blogspot.com)
+echo :: _choiceMulti.bat by wandersick - https://wandersick.blogspot.com
 echo.
 echo  [Usage]
 echo.
@@ -29,19 +36,19 @@ echo call _choiceMulti /msg "description" [/button "choices"] [/time "sec"]
 echo                   [/default "choice"] [/errorlevel 1-9] 
 echo                   [/choice "1" ["2"] ["3"] ["4"]...["9"]]
 echo.
-echo  /msg - the line users see when they are asked for input.
-echo  /button - instead of ascending numbers, users can enter any of these
-echo            specified to go to the choice. *1 *2
-echo  /time - timeout after specified seconds (used with /default) *1 *2
-echo  /default - default answer (used with /time) *1 *2
-echo  /errorlevel - outputs errorlevels just as choice.exe. either this or
+echo  /msg        - the line users see when they are asked for input
+echo  /button     - instead of ascending numbers, users can enter any of these
+echo                specified to go to the choice. *1 *2
+echo  /time       - timeout after specified seconds (used with /default) *1 *2
+echo  /default    - default answer (used with /time) *1 *2
+echo  /errorlevel - outputs errorlevels just as choice.exe. Either this or
 echo                /choice has to be set *1 *4
-echo  /choice - when users makes a choice, what is carried out. either this or
-echo            /errorlevel has to be set *1 *3 *4
+echo  /choice     - when users makes a choice, what is carried out. Either this or
+echo                /errorlevel has to be set *1 *3 *4
 echo.
 echo  *1 optional
 echo  *2 not applicable for "set /p" (you give up set /p support by setting it)
-echo  *3 /choice must be the last switch, otherwise it would not run properly.
+echo  *3 /choice must be the last switch, otherwise it would not run Automatically.
 echo  *4 maximum supported choices: 9
 :: due to arguments being %1-%9 without shift. may add more in future versions
 echo.
@@ -132,6 +139,13 @@ if %errorlevel% LEQ 9 goto _choiceMultiErrorlevel
 :_choiceMultiSetP
 set choiceMultiSetP=
 set /p choiceMultiSetP=%choiceMultiMsg%
+:: filter input to allow for "     Input   "
+:: check if required exe exist
+tr.exe >nul 2>&1
+if "%errorlevel%"=="9009" set noTrOrSed=1
+sed.exe >nul 2>&1
+if "%errorlevel%"=="9009" set noTrOrSed=1
+if not defined noTrOrSed @for /f "usebackq tokens=* delims=" %%i in (`echo "%choiceMultiSetP%"^| tr.exe -s "[:punct:][:cntrl:][:space:]" " " ^| sed.exe -e "s/^.//g" -e "s/.$//g"`) do set choiceMultiSetP=%%i
 :: detects if user specified an invalid answer
 set choiceMultiSetPValid=0
 :: compares the token 1 of "set choiceMultiUserChoice" with user input, i.e. if choiceMultiUserChoice1==choiceMultiUserChoice1 echo token 2

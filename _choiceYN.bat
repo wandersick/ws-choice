@@ -1,27 +1,35 @@
-@echo off
-setlocal
-:: ****************************************************************
-:: Sub: ChoiceYN
-:: Version: 1.0
+:: ------------------------------------------------------------------------
+
+:: Sub-script: _choiceYN.bat
+:: Version: 1.1
 :: Creation Date: 2/11/2009
-:: Last Modified: 2/11/2009
-:: Author: wanderSick@C7PE 
-:: Email: wanderSick@gmail.com
-:: Web: wanderSick.blogspot.com
-:: Supported OS: 2K/XP/Vista/7
-:: Description: Properly fall back to set /p for systems without choice.exe
+:: Last Modified: 20/01/2010
+:: Author: wandersick 
+:: Email: wandersick@gmail.com
+:: Web: https://wandersick.blogspot.com
+:: Github Repo: https://github.com/wandersick/ws-choice
+:: Supported OS: Windows 2000 or later
+
+:: Description: Automatically fall back to set /p for systems without choice.exe
 ::              Differentiate choice.exe from Win 9x and 2003/Vista/7
 ::              Set /p also returns errorlevels
 ::              Gives 2 choices, YN; for other choices, use ChoiceMulti
-:: Usage: See /? or /h
-:: ****************************************************************
+::              v1.1 adds support of sed and tr to filter inputs
+
+:: For a list of supported parameters, refer to paramter /?
+
+:: ------------------------------------------------------------------------
+
+
+@echo off
+setlocal
 
 if "%~1"=="/?" (goto help) else if /i "%~1"=="" (goto help) else (goto _choiceYn)
 
 :help
 
 echo.
-echo :: ChoiceYN 1.0 by wanderSick (wanderSick.blogspot.com)
+echo :: _choiceYN.bat by wandersick - https://wandersick.blogspot.com
 echo.
 echo  [Usage]
 echo.
@@ -67,6 +75,13 @@ if "%errorlevel%"=="1" exit /b 0
 
 :: if neither exists (win2000/xp)
 set /p choiceYn=%1
+:: filter input to allow for "     Y   "
+:: check if required exe exist
+tr.exe >nul 2>&1
+if "%errorlevel%"=="9009" set noTrOrSed=1
+sed.exe >nul 2>&1
+if "%errorlevel%"=="9009" set noTrOrSed=1
+if not defined noTrOrSed @for /f "usebackq tokens=* delims=" %%i in (`echo "%choiceYn%"^| tr.exe -s "[:punct:][:cntrl:][:space:]" " " ^| sed.exe -e "s/^.//g" -e "s/.$//g"`) do set choiceYn=%%i
 if /i "%choiceYn%"=="Y" exit /b 0
 if /i "%choiceYn%"=="N" exit /b 100
 goto _choiceYn
