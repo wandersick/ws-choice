@@ -2,6 +2,8 @@
 
 Sub-scripts for automatic fallback to `set /p` for systems without choice.exe.
 
+For download of the latest version, visit its page at [Microsoft TechNet Gallery](https://gallery.technet.microsoft.com/choiceMultibat-choiceYNbat-5fddcffd).
+
 Two flavours:
 
 1. `_choiceMulti.bat` gives a customizable number of choices
