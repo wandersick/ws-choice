@@ -9,7 +9,7 @@ Two flavours:
 1. `_choiceMulti.bat` gives a customizable number of choices
 2. `_choiceYN.bat` gives Y or N as choices
 
-These sub-scripts can be found in many of my Windows batch scripts, e.g. [ChMac](https://github.com/wandersick/chmac)
+![](https://1.bp.blogspot.com/--Y3D3svk1l4/XpGVLuSRWGI/AAAAAAAACQk/zjxCKaKv5tQ1UPyain_r_MF0ODuJ3xMpQCLcBGAsYHQ/s1600/ws-choice.png "Accessing Windows Magnifier functions from AeroZoom panel")
 
 ## _choiceMulti.bat
 
